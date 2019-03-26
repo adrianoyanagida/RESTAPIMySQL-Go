@@ -12,21 +12,21 @@ type user struct {
 }
 
 func (u *user) getUser(db *sql.DB) error {
-	return errors.New("Not implemented")
+	return errors.New("Não implementado")
 }
 
 func (u *user) updateUser(db *sql.DB) error {
-	return errors.New("Not implemented")
+	return errors.New("Não implementado")
 }
 
 func (u *user) deleteUser(db *sql.DB) error {
-	return errors.New("Not implemented")
+	return errors.New("Não implementado")
 }
 
 func (u *user) createUser(db *sql.DB) error {
-	return errors.New("Not implemented")
+	return errors.New("Não implementado")
 }
 
 func getUsers(db *sql.DB, start, count int) ([]user, error) {
-	return nil, errors.New("Not implemented")
+	return nil, errors.New("Não implementado")
 }
