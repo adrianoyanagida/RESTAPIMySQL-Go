@@ -16,6 +16,7 @@ var a App
 
 // <<FUNÇÕES TEST>>
 
+// TestMain : Função que será executada antes de todos os testes para executar alguns comandos necessários
 func TestMain(m *testing.M) {
 	a = App{}
 	a.Initialize("root", "root", "rest_api_example")
@@ -29,6 +30,8 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
+// TestEmptyTable : Este teste irá deletar os dados de user no banco e mandar um 'GET request'
+// para o endpoint '/users', deve-se retornar um array vazio
 func TestEmptyTable(t *testing.T) {
 	clearTable()
 
@@ -42,6 +45,8 @@ func TestEmptyTable(t *testing.T) {
 	}
 }
 
+// TestGetNonExistentUser : Este teste verifica se o status code 404 é recebido através de uma requisição
+// de um usuário não existente
 func TestGetNonExistentUser(t *testing.T) {
 	clearTable()
 
@@ -52,15 +57,17 @@ func TestGetNonExistentUser(t *testing.T) {
 
 	var m map[string]string
 	json.Unmarshal(response.Body.Bytes(), &m)
-	if m["error"] != "Usuário não encontrado" {
+	if m["error"] != "User not found" {
 		t.Errorf("Chave 'error' da resposta, esperado para ser 'User not found'. Obteve: '%s'", m["error"])
 	}
 }
 
+// TestCreateUser : Neste teste é adicionado um novo usuário no banco, e depois testamos se a resposta é
+// correspondente ao que foi adicionado
 func TestCreateUser(t *testing.T) {
 	clearTable()
 
-	payload := []byte(`{"name:"test user","age":30}`)
+	payload := []byte(`{"name":"test user","age":30}`)
 
 	req, _ := http.NewRequest("POST", "/user", bytes.NewBuffer(payload))
 	response := executeRequest(req)
@@ -85,6 +92,8 @@ func TestCreateUser(t *testing.T) {
 	}
 }
 
+// TestGetUser : Este teste irá adicionar um novo usuário no banco e irá checar se o endpoint resulta em uma
+// resposta HTTP com status code 200
 func TestGetUser(t *testing.T) {
 	clearTable()
 	addUsers(1)
@@ -95,6 +104,8 @@ func TestGetUser(t *testing.T) {
 	checkResponseCode(t, http.StatusOK, response.Code)
 }
 
+// TestUpdateUser : Este teste adiciona um novo usuário no banco e irá usar o endpoint de 'PUT' para atualizar
+// o usuário do banco
 func TestUpdateUser(t *testing.T) {
 	clearTable()
 	addUsers(1)
@@ -122,6 +133,10 @@ func TestUpdateUser(t *testing.T) {
 	}
 }
 
+// TestDeleteUser : Este teste irá criar um novo usuário, irá testar se ele foi adicionado usando 'GET', logo
+// em seguida irá excluir o usuário criado anteriormente, e irá testar novamente se ele foi excluído, e para
+// finalizar, ele irá fazer uma requisição 'GET' para verificar se existe um usuário no banco, e por final
+// deve se retornar 'http.StatusNotFound'
 func TestDeleteUser(t *testing.T) {
 	clearTable()
 	addUsers(1)
@@ -138,6 +153,7 @@ func TestDeleteUser(t *testing.T) {
 
 // <<FUNÇÕES>>
 
+// addUsers : Função para adicionar um user no banco de dados
 func addUsers(count int) {
 	if count < 1 {
 		count = 1
@@ -149,17 +165,20 @@ func addUsers(count int) {
 	}
 }
 
+// ensureTableExists : Verifica se a table que precisamos usar existe
 func ensureTableExists() {
 	if _, err := a.DB.Exec(tableCreationQuery); err != nil {
 		log.Fatal(err)
 	}
 }
 
+// clearTable :  Função para limpar uma table
 func clearTable() {
 	a.DB.Exec("DELETE FROM users")
-	a.DB.Exec("ALTER TABLE users AUTO-INCREMENT = 1")
+	a.DB.Exec("ALTER TABLE users AUTO_INCREMENT = 1")
 }
 
+// executeRequest :  Função para executar uma requisição
 func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 	rr := httptest.NewRecorder()
 	a.Router.ServeHTTP(rr, req)
@@ -167,12 +186,14 @@ func executeRequest(req *http.Request) *httptest.ResponseRecorder {
 	return rr
 }
 
+// checkResponseCode : Função para testar se a 'HTTP response code' é o esperado
 func checkResponseCode(t *testing.T, expected, actual int) {
 	if expected != actual {
 		t.Errorf("Código resposta esperado: %d. Código resposta recebido: %d\n", expected, actual)
 	}
 }
 
+// tableCreationQuery : Em caso a tabela não exista, cria uma
 const tableCreationQuery = `
 CREATE TABLE IF NOT EXISTS users
 (

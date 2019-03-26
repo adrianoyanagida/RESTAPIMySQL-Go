@@ -1,5 +1,6 @@
 package main
 
+// main : Ponto de entrada para a aplicação
 func main() {
 	a := App{}
 	// USERNAME e PASSWORD do banco de dados
